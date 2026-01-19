@@ -2,6 +2,7 @@
 using DotnetSupabase.Database.Contrats;
 using DotnetSupabase.Database.Entities;
 using Mapster;
+using Supabase.Interfaces;
 
 namespace DotnetSupabase.Database.Endpoints;
 
@@ -37,6 +38,17 @@ public sealed class UserEndpoints : ICarterModule
             return Results.Created($"/users/{response.Id}", response);
         });
 
+        app.MapDelete("/users/{id:int}", async(int id, Supabase.Client client) =>
+        {
+
+            var user = await client.From<User>().Where(u => u.Id == id).Single();
+            if (user is null)
+            {
+                return Results.NotFound();
+            }
+            await client.From<User>().Delete(user);
+            return Results.NoContent();
+        });
 
     }
 }
